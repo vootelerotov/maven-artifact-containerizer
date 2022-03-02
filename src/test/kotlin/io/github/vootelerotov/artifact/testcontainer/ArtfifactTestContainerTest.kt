@@ -7,8 +7,8 @@ internal class ArtfifactTestContainerTest {
 
   @Test
   fun fromArtifact() {
-    assertThat(
-      ArtfifactTestContainer.fromArtifact("org.antlr:antlr4:4.9.3").coordinate.artifactId
-    ).isEqualTo("antlr4")
+    val (artifact, dependencyCount) = ArtfifactTestContainer.fromArtifact("org.antlr:antlr4:4.9.3")
+    assertThat(artifact.coordinate.artifactId).isEqualTo("antlr4")
+    assertThat(dependencyCount).isEqualTo(6)
   }
 }
