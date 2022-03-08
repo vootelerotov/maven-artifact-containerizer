@@ -14,9 +14,12 @@ tasks.withType(Test::class) {
 }
 
 val junit5Version = "5.8.2"
+val shrinkwrapVersion = "3.1.4"
 
 dependencies {
-  implementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-depchain:3.1.4")
+  implementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-depchain:$shrinkwrapVersion")
+
+  testImplementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-api-maven-embedded:$shrinkwrapVersion")
 
   testImplementation("org.junit.jupiter:junit-jupiter-api:$junit5Version")
   testImplementation("org.junit.jupiter:junit-jupiter-engine:$junit5Version")

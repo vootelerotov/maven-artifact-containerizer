@@ -1,6 +1,7 @@
 package io.github.vootelerotov.artifact.testcontainer
 
 import org.assertj.core.api.Assertions.assertThat
+import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven
 import org.junit.jupiter.api.Test
 
 internal class ArtfifactTestContainerTest {
@@ -10,5 +11,9 @@ internal class ArtfifactTestContainerTest {
     val (artifact, dependencyCount) = ArtfifactTestContainer.fromArtifact("org.antlr:antlr4:4.9.3")
     assertThat(artifact.coordinate.artifactId).isEqualTo("antlr4")
     assertThat(dependencyCount).isEqualTo(6)
+  }
+
+  private fun publishToMavenLocal(pom: File) {
+    EmbeddedMaven.forProject(pom).setGoals("clean", "install").build()
   }
 }
