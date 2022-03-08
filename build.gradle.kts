@@ -22,4 +22,6 @@ dependencies {
   testImplementation("org.junit.jupiter:junit-jupiter-engine:$junit5Version")
   testImplementation("org.junit.jupiter:junit-jupiter-params:$junit5Version")
 
+  testImplementation("org.slf4j:slf4j-simple:1.7.36")
+
   testImplementation("org.assertj:assertj-core:3.22.0")}
