@@ -1,16 +1,27 @@
 package io.github.vootelerotov.artifact.testcontainer
 
-import org.assertj.core.api.Assertions.assertThat
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven
 import org.junit.jupiter.api.Test
+import org.testcontainers.containers.wait.strategy.Wait
+import java.io.File
+import java.nio.file.Path
+import java.time.Duration
 
 internal class ArtfifactTestContainerTest {
 
   @Test
-  fun fromArtifact() {
-    val (artifact, dependencyCount) = ArtfifactTestContainer.fromArtifact("org.antlr:antlr4:4.9.3")
-    assertThat(artifact.coordinate.artifactId).isEqualTo("antlr4")
-    assertThat(dependencyCount).isEqualTo(6)
+  fun runnableJarFromArtifactInLocalMaven() {
+    publishToMavenLocal(Path.of("test-projects", "main-class-jar","pom.xml").toFile())
+
+    val container = ArtfifactTestContainer.fromArtifact(
+      "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
+    ).build()
+      .withLogConsumer { println(it.utf8String) }
+      .waitingFor(Wait.forLogMessage(".*Started!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+
+    container.use {
+      container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
+    }
   }
 
   private fun publishToMavenLocal(pom: File) {
