@@ -5,21 +5,25 @@ import org.jboss.shrinkwrap.resolver.api.maven.MavenResolvedArtifact
 
 object ArtfifactTestContainer {
 
-  fun fromArtifact(fullyQualifiedName: String): Pair<MavenResolvedArtifact, Int> {
+  fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder {
     val resolver = Maven.configureResolver()
     val artifact = resolver
       .resolve(fullyQualifiedName)
       .withoutTransitivity()
       .asSingle(MavenResolvedArtifact::class.java)
 
-    println(artifact.dependencies.size)
-    val transitiveDependencies = resolver
-      .resolve(artifact.dependencies.map { it.coordinate.toCanonicalForm() })
+    val artifactFile = artifact.asFile()
+
+    val dependencyCoordinates = artifact.dependencies.map { it.coordinate.toCanonicalForm() }
+
+    val transitiveDependencies = if (dependencyCoordinates.isEmpty()) arrayOf() else resolver
+      .resolve(dependencyCoordinates)
       .withoutTransitivity()
       .asResolvedArtifact()
 
+    val dependencyFiles = transitiveDependencies.map { it.asFile() }
 
-    return artifact to transitiveDependencies.size
+    return JavaContainerBuilder(artifactFile, dependencyFiles)
   }
 
 }

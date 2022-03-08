@@ -17,6 +17,8 @@ val junit5Version = "5.8.2"
 val shrinkwrapVersion = "3.1.4"
 
 dependencies {
+  api("org.testcontainers:testcontainers:1.16.3")
+
   implementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-depchain:$shrinkwrapVersion")
 
   testImplementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-api-maven-embedded:$shrinkwrapVersion")
