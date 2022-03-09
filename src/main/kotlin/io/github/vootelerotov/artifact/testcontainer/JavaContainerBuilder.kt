@@ -6,6 +6,13 @@ import java.io.File
 
 class JavaContainerBuilder(private val artifact: File, private val dependencies: List<File>) {
 
+  private var className: String? = null
+
+  fun withClassName(fullyQualifiedClassName: String): JavaContainerBuilder {
+    this.className = fullyQualifiedClassName
+    return this
+  }
+
   fun build(): GenericContainer<*> {
 
     val image = ImageFromDockerfile()
@@ -17,10 +24,19 @@ class JavaContainerBuilder(private val artifact: File, private val dependencies:
         .from("openjdk:17")
         .workDir("java-artifact")
         .copy(".", ".")
-        .cmd("java", "-jar", artifact.name)
+        .cmd(*buildCommand(className))
     }
 
     return GenericContainer(completeImage)
   }
+
+
+  private fun buildCommand(className: String?): Array<String> =
+    if (className != null) {
+      arrayOf("java", "-cp", "*:libs/*", className)
+    } else {
+      arrayOf("java", "-jar", artifact.name)
+    }
+
 
 }

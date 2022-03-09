@@ -24,6 +24,21 @@ internal class ArtfifactTestContainerTest {
     }
   }
 
+  @Test
+  fun jarWithDependencyFromArtifactInLocalMaven() {
+    publishToMavenLocal(Path.of("test-projects", "jar-with-dependencies","pom.xml").toFile())
+
+    val container = ArtfifactTestContainer.fromArtifact(
+      "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
+    ).withClassName("io.github.vootelerotov.jar.with.dependencies.Main").build()
+      .withLogConsumer { println(it.utf8String) }
+      .waitingFor(Wait.forLogMessage(".*Started!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+
+    container.use {
+      container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
+    }
+  }
+
   private fun publishToMavenLocal(pom: File) {
     EmbeddedMaven.forProject(pom).setGoals("clean", "install").build()
   }
