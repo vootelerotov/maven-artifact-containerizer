@@ -23,7 +23,7 @@ internal class ArtfifactTestContainerTest {
     }
 
     @Test
-    fun runnableJarFromArtifactInLocalMaven() {
+    fun fromArtifactInLocalMaven() {
       val container = ArtfifactTestContainer.fromArtifact(
         "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
       ).build()
@@ -47,7 +47,7 @@ internal class ArtfifactTestContainerTest {
     }
 
     @Test
-    fun jarWithDependencyFromArtifactInLocalMaven() {
+    fun fromArtifactInLocalMaven() {
       val container = ArtfifactTestContainer.fromArtifact(
         "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
       ).withClassName("io.github.vootelerotov.jar.with.dependencies.Main").build()
