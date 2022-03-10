@@ -1,11 +1,14 @@
 package io.github.vootelerotov.artifact.testcontainer
 
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import org.testcontainers.containers.ContainerLaunchException
+import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.nio.file.Path
@@ -26,26 +29,20 @@ internal class ArtfifactTestContainerTest {
     fun fromArtifactInLocalMaven() {
       val container = ArtfifactTestContainer.fromArtifact(
         "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
-      ).build()
-        .withLogConsumer { println(it.utf8String) }
-        .waitingFor(Wait.forLogMessage(".*Started: nothing!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+      )
+        .build().withLogConsumer { println(it.utf8String) }
 
-      container.use {
-        container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
-      }
+      assertThatContainerStarts(container, ".*Started: nothing!.*")
     }
 
     @Test
     fun withArguments() {
       val container = ArtfifactTestContainer.fromArtifact(
         "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
-      ).withArgs("to", "test", "this").build()
-        .withLogConsumer { println(it.utf8String) }
-        .waitingFor(Wait.forLogMessage(".*Started: to test this!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+      ).withArgs("to", "test", "this")
+        .build().withLogConsumer { println(it.utf8String) }
 
-      container.use {
-        container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
-      }
+      assertThatContainerStarts(container, ".*Started: to test this!.*")
     }
 
   }
@@ -64,13 +61,10 @@ internal class ArtfifactTestContainerTest {
       val container = ArtfifactTestContainer.fromArtifact(
         "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
       )
-        .withClassName("io.github.vootelerotov.jar.with.dependencies.Main").build()
-        .withLogConsumer { println(it.utf8String) }
-        .waitingFor(Wait.forLogMessage(".*Started: nothing!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+        .withClassName("io.github.vootelerotov.jar.with.dependencies.Main")
+        .build().withLogConsumer { println(it.utf8String) }
 
-      container.use {
-        container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
-      }
+      assertThatContainerStarts(container, ".*Started: nothing!.*")
     }
 
     @Test
@@ -81,18 +75,26 @@ internal class ArtfifactTestContainerTest {
         .withClassName("io.github.vootelerotov.jar.with.dependencies.Main")
         .withArgs("to", "test")
 
-      val container = builder.build()
-        .withLogConsumer { println(it.utf8String) }
-        .waitingFor(Wait.forLogMessage(".*Started: to test!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+      val container = builder.build().withLogConsumer { println(it.utf8String) }
 
-      container.use {
-        container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
-      }
+      assertThatContainerStarts(container, ".*Started: to test!.*")
     }
 
   }
 
   private fun publishToMavenLocal(pom: File) {
     EmbeddedMaven.forProject(pom).setGoals("clean", "install").build()
+  }
+
+  private fun  assertThatContainerStarts(container: GenericContainer<*>, expectedLine: String) {
+    try {
+      container
+        .waitingFor(Wait.forLogMessage(expectedLine, 1).withStartupTimeout(Duration.ofSeconds(1)))
+        .use {
+          container.start()
+        }
+    } catch(e: ContainerLaunchException) {
+      fail("$expectedLine was not found produced by app under test", e)
+    }
   }
 }
