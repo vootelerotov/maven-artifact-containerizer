@@ -28,7 +28,7 @@ internal class ArtfifactTestContainerTest {
         "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
       ).build()
         .withLogConsumer { println(it.utf8String) }
-        .waitingFor(Wait.forLogMessage(".*Started!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+        .waitingFor(Wait.forLogMessage(".*Started: nothing!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
 
       container.use {
         container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
@@ -52,12 +52,13 @@ internal class ArtfifactTestContainerTest {
         "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
       ).withClassName("io.github.vootelerotov.jar.with.dependencies.Main").build()
         .withLogConsumer { println(it.utf8String) }
-        .waitingFor(Wait.forLogMessage(".*Started!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+        .waitingFor(Wait.forLogMessage(".*Started: nothing!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
 
       container.use {
         container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
       }
     }
+
   }
 
   private fun publishToMavenLocal(pom: File) {

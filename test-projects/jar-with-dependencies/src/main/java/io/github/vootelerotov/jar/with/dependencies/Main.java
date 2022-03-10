@@ -6,6 +6,7 @@ public class Main {
 
   public static void main(String[] args) {
     Objects.equal(null, null); // to have a dependency on a library
-    System.out.println("Started!");
+    String arrayAsString = String.join(" ", args);
+    System.out.println("Started: " + (arrayAsString.isEmpty() ? "nothing" : arrayAsString) + "!");
   }
 }
