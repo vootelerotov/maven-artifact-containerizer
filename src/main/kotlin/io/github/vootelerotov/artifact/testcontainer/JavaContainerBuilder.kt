@@ -7,9 +7,15 @@ import java.io.File
 class JavaContainerBuilder(private val artifact: File, private val dependencies: List<File>) {
 
   private var className: String? = null
+  private var args : Array<out String> = emptyArray()
 
   fun withClassName(fullyQualifiedClassName: String): JavaContainerBuilder {
     this.className = fullyQualifiedClassName
+    return this
+  }
+
+  fun withArgs(vararg args: String): JavaContainerBuilder {
+    this.args = args
     return this
   }
 
@@ -24,19 +30,21 @@ class JavaContainerBuilder(private val artifact: File, private val dependencies:
         .from("openjdk:17")
         .workDir("java-artifact")
         .copy(".", ".")
-        .cmd(*buildCommand(className))
+        .cmd(*buildCommand(className, args))
     }
 
     return GenericContainer(completeImage)
   }
 
 
-  private fun buildCommand(className: String?): Array<String> =
-    if (className != null) {
+  private fun buildCommand(className: String?, args: Array<out String>): Array<String> {
+    val baseCommand = if (className != null) {
       arrayOf("java", "-cp", "*:libs/*", className)
     } else {
       arrayOf("java", "-jar", artifact.name)
     }
+    return baseCommand + args
+  }
 
 
 }

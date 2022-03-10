@@ -35,6 +35,19 @@ internal class ArtfifactTestContainerTest {
       }
     }
 
+    @Test
+    fun withArguments() {
+      val container = ArtfifactTestContainer.fromArtifact(
+        "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
+      ).withArgs("to", "test", "this").build()
+        .withLogConsumer { println(it.utf8String) }
+        .waitingFor(Wait.forLogMessage(".*Started: to test this!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+
+      container.use {
+        container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
+      }
+    }
+
   }
 
   @Nested
@@ -50,9 +63,27 @@ internal class ArtfifactTestContainerTest {
     fun fromArtifactInLocalMaven() {
       val container = ArtfifactTestContainer.fromArtifact(
         "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
-      ).withClassName("io.github.vootelerotov.jar.with.dependencies.Main").build()
+      )
+        .withClassName("io.github.vootelerotov.jar.with.dependencies.Main").build()
         .withLogConsumer { println(it.utf8String) }
         .waitingFor(Wait.forLogMessage(".*Started: nothing!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
+
+      container.use {
+        container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
+      }
+    }
+
+    @Test
+    fun withArguments() {
+      val builder = ArtfifactTestContainer.fromArtifact(
+        "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
+      )
+        .withClassName("io.github.vootelerotov.jar.with.dependencies.Main")
+        .withArgs("to", "test")
+
+      val container = builder.build()
+        .withLogConsumer { println(it.utf8String) }
+        .waitingFor(Wait.forLogMessage(".*Started: to test!.*", 1).withStartupTimeout(Duration.ofSeconds(1)))
 
       container.use {
         container.start() // Not asserting anything, relying on the #waitingFor to throw an error when Started! is not present
