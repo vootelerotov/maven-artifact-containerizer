@@ -9,6 +9,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy
 import org.testcontainers.containers.wait.strategy.Wait
 import java.io.File
 import java.nio.file.Path
@@ -89,6 +90,7 @@ internal class ArtfifactTestContainerTest {
   private fun  assertThatContainerStarts(container: GenericContainer<*>, expectedLine: String) {
     try {
       container
+        .withStartupCheckStrategy(OneShotStartupCheckStrategy().withTimeout(Duration.ofSeconds(3)))
         .waitingFor(Wait.forLogMessage(expectedLine, 1).withStartupTimeout(Duration.ofSeconds(1)))
         .use {
           container.start()
