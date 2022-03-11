@@ -1,5 +1,6 @@
 package io.github.vootelerotov.artifact.testcontainer
 
+import io.github.vootelerotov.artifact.testcontainer.JavaContainerBuilder.JavaVersion
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeAll
@@ -46,6 +47,17 @@ internal class ArtfifactTestContainerTest {
       assertThatContainerStarts(container, ".*Started: to test this!.*")
     }
 
+    @Test
+    fun withJava8() {
+      val container = ArtfifactTestContainer.fromArtifact(
+        "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
+      ).withArgs("to", "test", "this")
+        .withJavaVersion(JavaVersion.V8)
+        .build().withLogConsumer { println(it.utf8String) }
+
+      assertThatContainerStarts(container, ".*Started: to test this!.*")
+    }
+
   }
 
   @Nested
@@ -79,6 +91,18 @@ internal class ArtfifactTestContainerTest {
       val container = builder.build().withLogConsumer { println(it.utf8String) }
 
       assertThatContainerStarts(container, ".*Started: to test!.*")
+    }
+
+    @Test
+    fun withJava17() {
+      val container = ArtfifactTestContainer.fromArtifact(
+        "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
+      )
+        .withJavaVersion(JavaVersion.V17)
+        .withClassName("io.github.vootelerotov.jar.with.dependencies.Main")
+        .build().withLogConsumer { println(it.utf8String) }
+
+      assertThatContainerStarts(container, ".*Started: nothing!.*")
     }
 
   }

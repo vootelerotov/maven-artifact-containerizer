@@ -6,8 +6,14 @@ import java.io.File
 
 class JavaContainerBuilder(private val artifact: File, private val dependencies: List<File>) {
 
+  private var javaVersion :JavaVersion = JavaVersion.V11
   private var className: String? = null
   private var args : Array<out String> = emptyArray()
+
+  fun withJavaVersion(javaVersion: JavaVersion): JavaContainerBuilder {
+    this.javaVersion = javaVersion
+    return this
+  }
 
   fun withClassName(fullyQualifiedClassName: String): JavaContainerBuilder {
     this.className = fullyQualifiedClassName
@@ -27,7 +33,7 @@ class JavaContainerBuilder(private val artifact: File, private val dependencies:
 
     val completeImage = image.withDockerfileFromBuilder { builder ->
       builder
-        .from("openjdk:17")
+        .from(javaVersion.dockerImageName)
         .workDir("java-artifact")
         .copy(".", ".")
         .cmd(*buildCommand(className, args))
@@ -44,6 +50,12 @@ class JavaContainerBuilder(private val artifact: File, private val dependencies:
       arrayOf("java", "-jar", artifact.name)
     }
     return baseCommand + args
+  }
+
+  enum class JavaVersion(internal val dockerImageName: String) {
+    V8("openjdk:8"),
+    V11("openjdk:11"),
+    V17("openjdk:17")
   }
 
 
