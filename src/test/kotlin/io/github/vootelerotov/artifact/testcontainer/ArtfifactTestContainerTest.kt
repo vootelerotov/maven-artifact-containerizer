@@ -47,17 +47,6 @@ internal class ArtfifactTestContainerTest {
       assertThatContainerStarts(container, ".*Started: to test this!.*")
     }
 
-    @Test
-    fun withJava8() {
-      val container = ArtfifactTestContainer.fromArtifact(
-        "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
-      ).withArgs("to", "test", "this")
-        .withJavaVersion(JavaVersion.V8)
-        .build().withLogConsumer { println(it.utf8String) }
-
-      assertThatContainerStarts(container, ".*Started: to test this!.*")
-    }
-
   }
 
   @Nested
@@ -93,16 +82,47 @@ internal class ArtfifactTestContainerTest {
       assertThatContainerStarts(container, ".*Started: to test!.*")
     }
 
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
+  inner class JavaVersionPrinter {
+
+    @BeforeAll
+    fun publishJarWithDependenciesToMavenLocal() { // io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT
+      publishToMavenLocal(Path.of("test-projects", "java-version-printer", "pom.xml").toFile())
+    }
+
+    @Test
+    fun withJava8() {
+      val container = ArtfifactTestContainer.fromArtifact(
+        "io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT"
+      )
+        .withJavaVersion(JavaVersion.V8)
+        .build().withLogConsumer { println(it.utf8String) }
+
+      assertThatContainerStarts(container, ".*Started test app on 1.8.0_\\d+!.*")
+    }
+
+    @Test
+    fun withJava11AsDefault() {
+      val container = ArtfifactTestContainer.fromArtifact(
+        "io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT"
+      )
+        .build().withLogConsumer { println(it.utf8String) }
+
+      assertThatContainerStarts(container, ".*Started test app on 11.[\\d\\.]+!.*")
+    }
+
     @Test
     fun withJava17() {
       val container = ArtfifactTestContainer.fromArtifact(
-        "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
+        "io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT"
       )
         .withJavaVersion(JavaVersion.V17)
-        .withClassName("io.github.vootelerotov.jar.with.dependencies.Main")
         .build().withLogConsumer { println(it.utf8String) }
 
-      assertThatContainerStarts(container, ".*Started: nothing!.*")
+      assertThatContainerStarts(container, ".*Started test app on 17.[\\d\\.]+!.*")
     }
 
   }
