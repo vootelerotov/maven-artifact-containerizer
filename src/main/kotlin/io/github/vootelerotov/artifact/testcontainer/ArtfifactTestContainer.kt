@@ -1,13 +1,20 @@
 package io.github.vootelerotov.artifact.testcontainer
 
-import org.jboss.shrinkwrap.resolver.api.maven.Maven
+import io.github.vootelerotov.artifact.testcontainer.resolver.DefaultResolverProvider
+import io.github.vootelerotov.artifact.testcontainer.resolver.ResolverProvider
 import org.jboss.shrinkwrap.resolver.api.maven.MavenResolvedArtifact
 
-object ArtfifactTestContainer {
+class ArtfifactTestContainer(private val resolver: ResolverProvider) {
+
+  companion object ArtfifactTestContainer {
+
+    fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder =
+      ArtfifactTestContainer(DefaultResolverProvider()).fromArtifact(fullyQualifiedName)
+
+  }
 
   fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder {
-    val resolver = Maven.configureResolver()
-    val artifact = resolver
+    val artifact = resolver.resolver()
       .resolve(fullyQualifiedName)
       .withoutTransitivity()
       .asSingle(MavenResolvedArtifact::class.java)
@@ -16,7 +23,7 @@ object ArtfifactTestContainer {
 
     val dependencyCoordinates = artifact.dependencies.map { it.coordinate.toCanonicalForm() }
 
-    val transitiveDependencies = if (dependencyCoordinates.isEmpty()) arrayOf() else resolver
+    val transitiveDependencies = if (dependencyCoordinates.isEmpty()) arrayOf() else resolver.resolver()
       .resolve(dependencyCoordinates)
       .withoutTransitivity()
       .asResolvedArtifact()
@@ -25,5 +32,4 @@ object ArtfifactTestContainer {
 
     return JavaContainerBuilder(artifactFile, dependencyFiles)
   }
-
 }
