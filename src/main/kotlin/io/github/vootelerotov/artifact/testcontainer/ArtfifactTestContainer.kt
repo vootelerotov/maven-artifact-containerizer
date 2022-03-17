@@ -1,20 +1,29 @@
 package io.github.vootelerotov.artifact.testcontainer
 
-import io.github.vootelerotov.artifact.testcontainer.resolver.DefaultResolverProvider
-import io.github.vootelerotov.artifact.testcontainer.resolver.ResolverProvider
+import io.github.vootelerotov.artifact.testcontainer.resolver.ResolverCreator
+import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem
 import org.jboss.shrinkwrap.resolver.api.maven.MavenResolvedArtifact
 
-class ArtfifactTestContainer(private val resolver: ResolverProvider) {
+class ArtfifactTestContainer(repositoryConfig: RepositoryConfig) {
+
+  private val resolver: ConfigurableMavenResolverSystem;
+
+  init {
+    resolver = ResolverCreator().createResolver(repositoryConfig)
+  }
 
   companion object ArtfifactTestContainer {
 
     fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder =
-      ArtfifactTestContainer(DefaultResolverProvider()).fromArtifact(fullyQualifiedName)
+      ArtfifactTestContainer(RepositoryConfig.DEFAULT).fromArtifact(fullyQualifiedName)
 
+    fun fromArtifact(repositoryConfig: RepositoryConfig, fullyQualifiedArtifactName: String) {
+      ArtfifactTestContainer(repositoryConfig).fromArtifact(fullyQualifiedArtifactName)
+    }
   }
 
   fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder {
-    val artifact = resolver.resolver()
+    val artifact = resolver
       .resolve(fullyQualifiedName)
       .withoutTransitivity()
       .asSingle(MavenResolvedArtifact::class.java)
@@ -23,7 +32,7 @@ class ArtfifactTestContainer(private val resolver: ResolverProvider) {
 
     val dependencyCoordinates = artifact.dependencies.map { it.coordinate.toCanonicalForm() }
 
-    val transitiveDependencies = if (dependencyCoordinates.isEmpty()) arrayOf() else resolver.resolver()
+    val transitiveDependencies = if (dependencyCoordinates.isEmpty()) arrayOf() else resolver
       .resolve(dependencyCoordinates)
       .withoutTransitivity()
       .asResolvedArtifact()
