@@ -16,12 +16,8 @@ class ResolverCreator {
     Maven.configureResolver().apply {
       fromFile(SettingsXmlWriter().writeSettingsXml(config).toFile())
       config.getRemoteRepositories().forEach { repository ->
-        when(repository) {
-          is PublicRemoteRepository -> withRemoteRepo(repository.id, repository.url, DEFAULT)
-          else -> { /* skip for now */ }
-        }
+        withRemoteRepo(repository.id, repository.url, DEFAULT)
       }
     }
-
 
 }

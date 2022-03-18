@@ -172,16 +172,53 @@ internal class ArtfifactTestContainerTest {
 
       @Test
       fun withNonDefaultPublicRepository() {
-          val container = ArtfifactTestContainer.fromArtifact(
-            RepositoryConfig().withLocalRepository(Files.createTempDir().toPath()).withRepository("test", repositoryURL),
-            "io.github.vootelerotov.test.projects:publishable-jar:1.0"
-          )
-            .build().withLogConsumer { println(it.utf8String) }
+        val container = ArtfifactTestContainer.fromArtifact(
+          RepositoryConfig().withLocalRepository(Files.createTempDir().toPath()).withRepository("test", repositoryURL),
+          "io.github.vootelerotov.test.projects:publishable-jar:1.0"
+        )
+          .build().withLogConsumer { println(it.utf8String) }
 
-          assertThatContainerStarts(container, ".*Started!.*")
-        }
+        assertThatContainerStarts(container, ".*Started!.*")
       }
     }
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    inner class PrivateRepo {
+
+      private val repositoryURL by lazy {
+        URL("http://localhost:${remoteMavenRepositoryContainer.getMappedPort(80)}/private")
+      }
+
+      @BeforeEach
+      fun deployToPrivateRepository() { // io.github.vootelerotov.test.projects:publishable-jar:1.0
+        deployToRemoteRepository(
+          Path.of("test-projects", "publishable-jar", "pom.xml").toFile(),
+          RepositoryConfig.PrivateRemoteRepository(
+            "test",
+            repositoryURL,
+            "test",
+            "test"
+          )
+        )
+      }
+
+      @Test
+      fun withNonDefaultPrivateRepository() {
+        val repositoryConfig = RepositoryConfig()
+          .withLocalRepository(Files.createTempDir().toPath())
+          .withRepository("test", repositoryURL, "test", "test")
+        val container = ArtfifactTestContainer.fromArtifact(
+          repositoryConfig,
+          "io.github.vootelerotov.test.projects:publishable-jar:1.0"
+        )
+          .build().withLogConsumer { println(it.utf8String) }
+
+        assertThatContainerStarts(container, ".*Started!.*")
+      }
+
+    }
+  }
 
   @Test
   fun fromDefaultLocalRepository() {

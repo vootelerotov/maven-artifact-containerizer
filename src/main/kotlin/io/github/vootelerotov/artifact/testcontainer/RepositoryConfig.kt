@@ -22,6 +22,10 @@ class RepositoryConfig {
     remoteRepositories.add(PublicRemoteRepository(id, url))
   }
 
+  fun withRepository(id: String, url: URL, username: String, password: String) = apply {
+    remoteRepositories.add(PrivateRemoteRepository(id, url, username, password))
+  }
+
   internal fun withRepository(repository: RemoteRepository) = apply {
     remoteRepositories.add(repository)
   }
