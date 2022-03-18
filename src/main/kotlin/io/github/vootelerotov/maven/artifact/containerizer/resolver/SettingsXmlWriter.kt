@@ -1,6 +1,6 @@
-package io.github.vootelerotov.artifact.testcontainer.resolver
+package io.github.vootelerotov.maven.artifact.containerizer.resolver
 
-import io.github.vootelerotov.artifact.testcontainer.RepositoryConfig
+import io.github.vootelerotov.maven.artifact.containerizer.RepositoryConfig
 import org.redundent.kotlin.xml.xml
 import java.nio.file.Files
 import java.nio.file.Path

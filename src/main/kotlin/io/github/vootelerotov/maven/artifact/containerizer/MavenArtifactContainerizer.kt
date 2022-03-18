@@ -1,10 +1,10 @@
-package io.github.vootelerotov.artifact.testcontainer
+package io.github.vootelerotov.maven.artifact.containerizer
 
-import io.github.vootelerotov.artifact.testcontainer.resolver.ResolverCreator
+import io.github.vootelerotov.maven.artifact.containerizer.resolver.ResolverCreator
 import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem
 import org.jboss.shrinkwrap.resolver.api.maven.MavenResolvedArtifact
 
-class ArtfifactTestContainer(repositoryConfig: RepositoryConfig) {
+class MavenArtifactContainerizer(repositoryConfig: RepositoryConfig) {
 
   private val resolver: ConfigurableMavenResolverSystem;
 
@@ -12,13 +12,13 @@ class ArtfifactTestContainer(repositoryConfig: RepositoryConfig) {
     resolver = ResolverCreator().createResolver(repositoryConfig)
   }
 
-  companion object ArtfifactTestContainer {
+  companion object MavenArtifactTestcontainerizer {
 
     fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder =
-      ArtfifactTestContainer(RepositoryConfig.DEFAULT).fromArtifact(fullyQualifiedName)
+      MavenArtifactContainerizer(RepositoryConfig.DEFAULT).fromArtifact(fullyQualifiedName)
 
     fun fromArtifact(repositoryConfig: RepositoryConfig, fullyQualifiedArtifactName: String): JavaContainerBuilder =
-      ArtfifactTestContainer(repositoryConfig).fromArtifact(fullyQualifiedArtifactName)
+      MavenArtifactContainerizer(repositoryConfig).fromArtifact(fullyQualifiedArtifactName)
 
   }
 

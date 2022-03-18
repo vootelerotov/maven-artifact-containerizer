@@ -1,2 +1,2 @@
-rootProject.name = "artifact-test-container"
+rootProject.name = "maven-artifact-containerizer"
 

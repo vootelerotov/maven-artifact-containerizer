@@ -1,7 +1,7 @@
-package io.github.vootelerotov.artifact.testcontainer
+package io.github.vootelerotov.maven.artifact.containerizer
 
-import io.github.vootelerotov.artifact.testcontainer.JavaContainerBuilder.JavaVersion
-import io.github.vootelerotov.artifact.testcontainer.resolver.SettingsXmlWriter
+import io.github.vootelerotov.maven.artifact.containerizer.JavaContainerBuilder.JavaVersion
+import io.github.vootelerotov.maven.artifact.containerizer.resolver.SettingsXmlWriter
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeAll
@@ -25,7 +25,7 @@ import java.time.Duration
 
 @Testcontainers
 @TestInstance(PER_CLASS)
-internal class ArtfifactTestContainerTest {
+internal class MavenArtifactContainerizerTest {
 
   private val testLocalRepositoryPath: Path = Files.createTempDir().toPath()
   private val testRepositoryConfig = RepositoryConfig().withLocalRepository(testLocalRepositoryPath)
@@ -172,7 +172,7 @@ internal class ArtfifactTestContainerTest {
 
       @Test
       fun withNonDefaultPublicRepository() {
-        val container = ArtfifactTestContainer.fromArtifact(
+        val container = MavenArtifactContainerizer.fromArtifact(
           RepositoryConfig().withLocalRepository(Files.createTempDir().toPath()).withRepository("test", repositoryURL),
           "io.github.vootelerotov.test.projects:publishable-jar:1.0"
         )
@@ -208,7 +208,7 @@ internal class ArtfifactTestContainerTest {
         val repositoryConfig = RepositoryConfig()
           .withLocalRepository(Files.createTempDir().toPath())
           .withRepository("test", repositoryURL, "test", "test")
-        val container = ArtfifactTestContainer.fromArtifact(
+        val container = MavenArtifactContainerizer.fromArtifact(
           repositoryConfig,
           "io.github.vootelerotov.test.projects:publishable-jar:1.0"
         )
@@ -225,7 +225,7 @@ internal class ArtfifactTestContainerTest {
     // io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT
     publishToDefaultMavenLocal(Path.of("test-projects", "main-class-jar", "pom.xml").toFile())
 
-    val container = ArtfifactTestContainer.fromArtifact(
+    val container = MavenArtifactContainerizer.fromArtifact(
       "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
     )
       .build().withLogConsumer { println(it.utf8String) }
@@ -246,7 +246,7 @@ internal class ArtfifactTestContainerTest {
   }
 
   private fun containerWithTestLocaLRepository(fullyQualifiedName: String) =
-    ArtfifactTestContainer.fromArtifact(
+    MavenArtifactContainerizer.fromArtifact(
       testRepositoryConfig,
       fullyQualifiedName
     )

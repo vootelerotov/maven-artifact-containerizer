@@ -1,4 +1,4 @@
-package io.github.vootelerotov.artifact.testcontainer
+package io.github.vootelerotov.maven.artifact.containerizer
 
 import java.net.URL
 import java.nio.file.Path

@@ -1,7 +1,6 @@
-package io.github.vootelerotov.artifact.testcontainer.resolver
+package io.github.vootelerotov.maven.artifact.containerizer.resolver
 
-import io.github.vootelerotov.artifact.testcontainer.RepositoryConfig
-import io.github.vootelerotov.artifact.testcontainer.RepositoryConfig.PublicRemoteRepository
+import io.github.vootelerotov.maven.artifact.containerizer.RepositoryConfig
 import org.jboss.shrinkwrap.resolver.api.maven.ConfigurableMavenResolverSystem
 import org.jboss.shrinkwrap.resolver.api.maven.Maven
 

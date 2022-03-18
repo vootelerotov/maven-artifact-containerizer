@@ -1,4 +1,4 @@
-package io.github.vootelerotov.artifact.testcontainer
+package io.github.vootelerotov.maven.artifact.containerizer
 
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.images.builder.ImageFromDockerfile
@@ -6,7 +6,7 @@ import java.io.File
 
 class JavaContainerBuilder(private val artifact: File, private val dependencies: List<File>) {
 
-  private var javaVersion :JavaVersion = JavaVersion.V11
+  private var javaVersion : JavaVersion = JavaVersion.V11
   private var className: String? = null
   private var args : Array<out String> = emptyArray()
 
