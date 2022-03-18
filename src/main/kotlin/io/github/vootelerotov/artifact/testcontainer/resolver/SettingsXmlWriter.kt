@@ -42,21 +42,6 @@ internal class SettingsXmlWriter {
         }
       }
 
-      "repositories" {
-        repositoryConfig.getRemoteRepositories().forEach {
-          "repository" {
-            "id" {
-              - it.id
-            }
-            "name" {
-              - it.id
-            }
-            "url" {
-              - it.url.toString()
-            }
-          }
-        }
-      }
     }.toString()
 
 
