@@ -192,7 +192,7 @@ internal class MavenArtifactContainerizerTest {
         URL("http://localhost:${remoteMavenRepositoryContainer.getMappedPort(80)}/private")
       }
 
-      @BeforeEach
+      @BeforeAll
       fun deployToPrivateRepository() { // io.github.vootelerotov.test.projects:publishable-jar:1.0
         deployToRemoteRepository(
           Path.of("test-projects", "publishable-jar", "pom.xml").toFile(),
