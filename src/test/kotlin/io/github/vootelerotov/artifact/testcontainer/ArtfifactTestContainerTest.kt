@@ -1,9 +1,11 @@
 package io.github.vootelerotov.artifact.testcontainer
 
 import io.github.vootelerotov.artifact.testcontainer.JavaContainerBuilder.JavaVersion
+import io.github.vootelerotov.artifact.testcontainer.resolver.SettingsXmlWriter
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -11,11 +13,18 @@ import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 import org.testcontainers.containers.wait.strategy.Wait
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.io.File
+import java.io.FileInputStream
+import java.net.URL
 import java.nio.file.Path
 import java.time.Duration
+import java.util.Properties
 
+@Testcontainers
 internal class ArtfifactTestContainerTest {
 
   @Nested
@@ -127,8 +136,61 @@ internal class ArtfifactTestContainerTest {
 
   }
 
+  @Nested
+  @TestInstance(PER_CLASS)
+  inner class RemoteRepository {
+
+    @Container
+    val remoteMavenRepositoryContainer = GenericContainer("dzikoysk/reposilite:3.0.0-alpha.22")
+      .withExposedPorts(80)
+      .waitingFor(HostPortWaitStrategy().withStartupTimeout(Duration.ofSeconds(10)))
+      .withEnv("REPOSILITE_OPTS", "--token=test:test")
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    inner class PublicRepo {
+
+      private val repositoryURL by lazy {
+        URL("http://localhost:${remoteMavenRepositoryContainer.getMappedPort(80)}/releases")
+      }
+
+      @BeforeEach
+      fun deployToPublicRepository() {
+        deployToRemoteRepository(
+          Path.of("test-projects", "publishable-jar", "pom.xml").toFile(),
+          RepositoryConfig.PrivateRemoteRepository(
+            "test",
+            repositoryURL,
+            "test",
+            "test"
+          )
+        )
+      }
+
+      @Test
+      fun withNonDefaultPublicRepository() {
+          val container = ArtfifactTestContainer.fromArtifact(
+            RepositoryConfig().withRepository("test", repositoryURL),
+            "io.github.vootelerotov.test.projects:publishable-jar:1.0"
+          )
+            .build().withLogConsumer { println(it.utf8String) }
+
+          assertThatContainerStarts(container, ".*Started!.*")
+        }
+      }
+    }
+
   private fun publishToMavenLocal(pom: File) {
     EmbeddedMaven.forProject(pom).setGoals("clean", "install").build()
+  }
+
+  private fun deployToRemoteRepository(pom: File, repository: RepositoryConfig.RemoteRepository) {
+    EmbeddedMaven.forProject(pom).setUserSettingsFile(
+      SettingsXmlWriter().writeSettingsXml(RepositoryConfig().withRepository(repository)).toFile()
+    )
+      .addProperty("altDeploymentRepository","${repository.id}::default::${repository.url}")
+      .setGoals("clean", "deploy")
+      .build()
   }
 
   private fun  assertThatContainerStarts(container: GenericContainer<*>, expectedLine: String) {

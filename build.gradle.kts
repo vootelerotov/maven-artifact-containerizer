@@ -15,11 +15,13 @@ tasks.withType(Test::class) {
 
 val junit5Version = "5.8.2"
 val shrinkwrapVersion = "3.1.4"
+val testcontainersVersion = "1.16.3"
 
 dependencies {
-  api("org.testcontainers:testcontainers:1.16.3")
+  api("org.testcontainers:testcontainers:$testcontainersVersion")
 
   implementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-depchain:$shrinkwrapVersion")
+  implementation("org.redundent:kotlin-xml-builder:1.7.4")
 
   testImplementation("org.jboss.shrinkwrap.resolver:shrinkwrap-resolver-api-maven-embedded:$shrinkwrapVersion")
 
@@ -29,4 +31,8 @@ dependencies {
 
   testImplementation("org.slf4j:slf4j-simple:1.7.36")
 
-  testImplementation("org.assertj:assertj-core:3.22.0")}
+  testImplementation("org.assertj:assertj-core:3.22.0")
+
+  testImplementation("org.testcontainers:junit-jupiter:$testcontainersVersion")
+
+}

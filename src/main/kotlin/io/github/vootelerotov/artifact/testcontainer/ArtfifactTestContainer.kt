@@ -17,9 +17,9 @@ class ArtfifactTestContainer(repositoryConfig: RepositoryConfig) {
     fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder =
       ArtfifactTestContainer(RepositoryConfig.DEFAULT).fromArtifact(fullyQualifiedName)
 
-    fun fromArtifact(repositoryConfig: RepositoryConfig, fullyQualifiedArtifactName: String) {
+    fun fromArtifact(repositoryConfig: RepositoryConfig, fullyQualifiedArtifactName: String): JavaContainerBuilder =
       ArtfifactTestContainer(repositoryConfig).fromArtifact(fullyQualifiedArtifactName)
-    }
+
   }
 
   fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder {

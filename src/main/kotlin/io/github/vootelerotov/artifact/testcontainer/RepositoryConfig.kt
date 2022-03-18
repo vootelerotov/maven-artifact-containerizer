@@ -15,10 +15,15 @@ class RepositoryConfig {
   internal fun getRemoteRepositories() : List<RemoteRepository> = remoteRepositories
 
   fun withRepository(id: String, url: URL) = apply {
-    remoteRepositories.add(PublicRemoteRepostitory(id, url))
+    remoteRepositories.add(PublicRemoteRepository(id, url))
+  }
+
+  internal fun withRepository(repository: RemoteRepository) = apply {
+    remoteRepositories.add(repository)
   }
 
   internal sealed class RemoteRepository(val id: String, val url: URL)
-  internal class PublicRemoteRepostitory(id: String, url: URL): RemoteRepository(id, url)
+  internal class PublicRemoteRepository(id: String, url: URL): RemoteRepository(id, url)
+  internal class PrivateRemoteRepository(id: String, url: URL, val username: String, val password: String): RemoteRepository(id, url)
 
 }
