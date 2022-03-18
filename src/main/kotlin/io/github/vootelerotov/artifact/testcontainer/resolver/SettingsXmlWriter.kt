@@ -4,6 +4,7 @@ import io.github.vootelerotov.artifact.testcontainer.RepositoryConfig
 import org.redundent.kotlin.xml.xml
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 
 internal class SettingsXmlWriter {
 
@@ -20,6 +21,12 @@ internal class SettingsXmlWriter {
         "xmlns:xsi" to "http://www.w3.org/2001/XMLSchema-instance",
         "xsi:schemaLocation"  to "http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd"
       )
+
+      repositoryConfig.localRepositoryPath?.let {
+        "localRepository" {
+          - it.absolutePathString()
+        }
+      }
 
       "servers" {
         repositoryConfig.getRemoteRepositories().forEach {

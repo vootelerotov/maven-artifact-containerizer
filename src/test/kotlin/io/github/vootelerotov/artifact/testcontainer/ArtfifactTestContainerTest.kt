@@ -17,15 +17,18 @@ import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.shaded.com.google.common.io.Files
 import java.io.File
-import java.io.FileInputStream
 import java.net.URL
 import java.nio.file.Path
 import java.time.Duration
-import java.util.Properties
 
 @Testcontainers
+@TestInstance(PER_CLASS)
 internal class ArtfifactTestContainerTest {
+
+  private val testLocalRepositoryPath: Path = Files.createTempDir().toPath()
+  private val testRepositoryConfig = RepositoryConfig().withLocalRepository(testLocalRepositoryPath)
 
   @Nested
   @TestInstance(PER_CLASS)
@@ -33,12 +36,12 @@ internal class ArtfifactTestContainerTest {
 
     @BeforeAll
     fun publishRunnableJarToMavenLocal() { // io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT
-      publishToMavenLocal(Path.of("test-projects", "main-class-jar", "pom.xml").toFile())
+      publishToTestMavenLocal(Path.of("test-projects", "main-class-jar", "pom.xml").toFile())
     }
 
     @Test
     fun fromArtifactInLocalMaven() {
-      val container = ArtfifactTestContainer.fromArtifact(
+      val container = containerWithTestLocaLRepository(
         "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
       )
         .build().withLogConsumer { println(it.utf8String) }
@@ -48,7 +51,7 @@ internal class ArtfifactTestContainerTest {
 
     @Test
     fun withArguments() {
-      val container = ArtfifactTestContainer.fromArtifact(
+      val container = containerWithTestLocaLRepository(
         "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
       ).withArgs("to", "test", "this")
         .build().withLogConsumer { println(it.utf8String) }
@@ -64,12 +67,12 @@ internal class ArtfifactTestContainerTest {
 
     @BeforeAll
     fun publishJarWithDependenciesToMavenLocal() { // io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT
-      publishToMavenLocal(Path.of("test-projects", "jar-with-dependencies", "pom.xml").toFile())
+      publishToTestMavenLocal(Path.of("test-projects", "jar-with-dependencies", "pom.xml").toFile())
     }
 
     @Test
     fun fromArtifactInLocalMaven() {
-      val container = ArtfifactTestContainer.fromArtifact(
+      val container = containerWithTestLocaLRepository(
         "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
       )
         .withClassName("io.github.vootelerotov.jar.with.dependencies.Main")
@@ -80,7 +83,7 @@ internal class ArtfifactTestContainerTest {
 
     @Test
     fun withArguments() {
-      val builder = ArtfifactTestContainer.fromArtifact(
+      val builder = containerWithTestLocaLRepository(
         "io.github.vootelerotov.test.projects:jar-with-dependencies:1.0-SNAPSHOT"
       )
         .withClassName("io.github.vootelerotov.jar.with.dependencies.Main")
@@ -99,12 +102,12 @@ internal class ArtfifactTestContainerTest {
 
     @BeforeAll
     fun publishJarWithDependenciesToMavenLocal() { // io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT
-      publishToMavenLocal(Path.of("test-projects", "java-version-printer", "pom.xml").toFile())
+      publishToTestMavenLocal(Path.of("test-projects", "java-version-printer", "pom.xml").toFile())
     }
 
     @Test
     fun withJava8() {
-      val container = ArtfifactTestContainer.fromArtifact(
+      val container = containerWithTestLocaLRepository(
         "io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT"
       )
         .withJavaVersion(JavaVersion.V8)
@@ -115,7 +118,7 @@ internal class ArtfifactTestContainerTest {
 
     @Test
     fun withJava11AsDefault() {
-      val container = ArtfifactTestContainer.fromArtifact(
+      val container = containerWithTestLocaLRepository(
         "io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT"
       )
         .build().withLogConsumer { println(it.utf8String) }
@@ -125,7 +128,7 @@ internal class ArtfifactTestContainerTest {
 
     @Test
     fun withJava17() {
-      val container = ArtfifactTestContainer.fromArtifact(
+      val container = containerWithTestLocaLRepository(
         "io.github.vootelerotov.test.projects:java-version-printer:1.0-SNAPSHOT"
       )
         .withJavaVersion(JavaVersion.V17)
@@ -155,7 +158,7 @@ internal class ArtfifactTestContainerTest {
       }
 
       @BeforeEach
-      fun deployToPublicRepository() {
+      fun deployToPublicRepository() { // io.github.vootelerotov.test.projects:publishable-jar:1.0
         deployToRemoteRepository(
           Path.of("test-projects", "publishable-jar", "pom.xml").toFile(),
           RepositoryConfig.PrivateRemoteRepository(
@@ -170,7 +173,7 @@ internal class ArtfifactTestContainerTest {
       @Test
       fun withNonDefaultPublicRepository() {
           val container = ArtfifactTestContainer.fromArtifact(
-            RepositoryConfig().withRepository("test", repositoryURL),
+            RepositoryConfig().withLocalRepository(Files.createTempDir().toPath()).withRepository("test", repositoryURL),
             "io.github.vootelerotov.test.projects:publishable-jar:1.0"
           )
             .build().withLogConsumer { println(it.utf8String) }
@@ -180,9 +183,36 @@ internal class ArtfifactTestContainerTest {
       }
     }
 
-  private fun publishToMavenLocal(pom: File) {
+  @Test
+  fun fromDefaultLocalRepository() {
+    // io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT
+    publishToDefaultMavenLocal(Path.of("test-projects", "main-class-jar", "pom.xml").toFile())
+
+    val container = ArtfifactTestContainer.fromArtifact(
+      "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
+    )
+      .build().withLogConsumer { println(it.utf8String) }
+
+    assertThatContainerStarts(container, ".*Started: nothing!.*")
+
+  }
+
+
+  private fun publishToTestMavenLocal(pom: File) {
+    EmbeddedMaven.forProject(pom)
+      .setLocalRepositoryDirectory(testLocalRepositoryPath.toFile())
+      .setGoals("clean", "install").build()
+  }
+
+  private fun publishToDefaultMavenLocal(pom: File) {
     EmbeddedMaven.forProject(pom).setGoals("clean", "install").build()
   }
+
+  private fun containerWithTestLocaLRepository(fullyQualifiedName: String) =
+    ArtfifactTestContainer.fromArtifact(
+      testRepositoryConfig,
+      fullyQualifiedName
+    )
 
   private fun deployToRemoteRepository(pom: File, repository: RepositoryConfig.RemoteRepository) {
     EmbeddedMaven.forProject(pom).setUserSettingsFile(

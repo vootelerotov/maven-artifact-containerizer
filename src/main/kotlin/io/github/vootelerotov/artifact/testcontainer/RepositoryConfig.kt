@@ -9,10 +9,14 @@ class RepositoryConfig {
     internal val DEFAULT = RepositoryConfig()
   }
 
-  private var localRepositoryPath: Path? = null
+  internal var localRepositoryPath: Path? = null
   private val remoteRepositories : MutableList<RemoteRepository> = mutableListOf()
 
   internal fun getRemoteRepositories() : List<RemoteRepository> = remoteRepositories
+
+  fun withLocalRepository(path: Path) = apply {
+    localRepositoryPath = path
+  }
 
   fun withRepository(id: String, url: URL) = apply {
     remoteRepositories.add(PublicRemoteRepository(id, url))
