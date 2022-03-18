@@ -3,27 +3,20 @@ package io.github.vootelerotov.maven.artifact.containerizer
 import io.github.vootelerotov.maven.artifact.containerizer.JavaContainerBuilder.JavaVersion
 import io.github.vootelerotov.maven.artifact.containerizer.resolver.SettingsXmlWriter
 import org.jboss.shrinkwrap.resolver.api.maven.embedded.EmbeddedMaven
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.fail
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.testcontainers.containers.ContainerLaunchException
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.startupcheck.OneShotStartupCheckStrategy
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 import org.testcontainers.containers.wait.strategy.Wait
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.shaded.com.google.common.io.Files
 import java.io.File
 import java.net.URL
 import java.nio.file.Path
 import java.time.Duration
 
-@Testcontainers
 @TestInstance(PER_CLASS)
 internal class MavenArtifactContainerizerTest {
 
@@ -143,11 +136,20 @@ internal class MavenArtifactContainerizerTest {
   @TestInstance(PER_CLASS)
   inner class RemoteRepository {
 
-    @Container
     val remoteMavenRepositoryContainer = GenericContainer("dzikoysk/reposilite:3.0.0-alpha.22")
       .withExposedPorts(80)
       .waitingFor(HostPortWaitStrategy().withStartupTimeout(Duration.ofSeconds(10)))
       .withEnv("REPOSILITE_OPTS", "--token=test:test")
+
+    @BeforeAll
+    fun startContainer() {
+      remoteMavenRepositoryContainer.start()
+    }
+
+    @AfterAll
+    fun stopContainer(){
+      remoteMavenRepositoryContainer.stop()
+    }
 
     @Nested
     @TestInstance(PER_CLASS)
