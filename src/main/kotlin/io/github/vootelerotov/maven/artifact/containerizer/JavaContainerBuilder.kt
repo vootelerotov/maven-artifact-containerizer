@@ -42,7 +42,6 @@ class JavaContainerBuilder(private val artifact: File, private val dependencies:
     return GenericContainer(completeImage)
   }
 
-
   private fun buildCommand(className: String?, args: Array<out String>): Array<String> {
     val baseCommand = if (className != null) {
       arrayOf("java", "-cp", "*:libs/*", className)
@@ -57,6 +56,5 @@ class JavaContainerBuilder(private val artifact: File, private val dependencies:
     V11("openjdk:11"),
     V17("openjdk:17")
   }
-
 
 }

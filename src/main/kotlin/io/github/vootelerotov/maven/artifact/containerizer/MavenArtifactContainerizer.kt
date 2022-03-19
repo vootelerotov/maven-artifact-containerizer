@@ -41,4 +41,5 @@ class MavenArtifactContainerizer(repositoryConfig: RepositoryConfig) {
 
     return JavaContainerBuilder(artifactFile, dependencyFiles)
   }
+
 }

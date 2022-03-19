@@ -236,7 +236,6 @@ internal class MavenArtifactContainerizerTest {
 
   }
 
-
   private fun publishToTestMavenLocal(pom: File) {
     EmbeddedMaven.forProject(pom)
       .setLocalRepositoryDirectory(testLocalRepositoryPath.toFile())
@@ -274,4 +273,5 @@ internal class MavenArtifactContainerizerTest {
       fail("$expectedLine was not found produced by app under test", e)
     }
   }
+
 }
