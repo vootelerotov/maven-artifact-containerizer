@@ -174,7 +174,7 @@ internal class MavenArtifactContainerizerTest {
 
       @Test
       fun withNonDefaultPublicRepository() {
-        val container = MavenArtifactContainerizer.fromArtifact(
+        val container = MavenArtifactContainerizer.containerize(
           RepositoryConfig().withLocalRepository(Files.createTempDir().toPath()).withRepository("test", repositoryURL),
           "io.github.vootelerotov.test.projects:publishable-jar:1.0"
         )
@@ -210,7 +210,7 @@ internal class MavenArtifactContainerizerTest {
         val repositoryConfig = RepositoryConfig()
           .withLocalRepository(Files.createTempDir().toPath())
           .withRepository("test", repositoryURL, "test", "test")
-        val container = MavenArtifactContainerizer.fromArtifact(
+        val container = MavenArtifactContainerizer.containerize(
           repositoryConfig,
           "io.github.vootelerotov.test.projects:publishable-jar:1.0"
         )
@@ -227,7 +227,7 @@ internal class MavenArtifactContainerizerTest {
     // io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT
     publishToDefaultMavenLocal(Path.of("test-projects", "main-class-jar", "pom.xml").toFile())
 
-    val container = MavenArtifactContainerizer.fromArtifact(
+    val container = MavenArtifactContainerizer.containerize(
       "io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT"
     )
       .build().withLogConsumer { println(it.utf8String) }
@@ -248,7 +248,7 @@ internal class MavenArtifactContainerizerTest {
   }
 
   private fun containerWithTestLocaLRepository(fullyQualifiedName: String) =
-    MavenArtifactContainerizer.fromArtifact(
+    MavenArtifactContainerizer.containerize(
       testRepositoryConfig,
       fullyQualifiedName
     )

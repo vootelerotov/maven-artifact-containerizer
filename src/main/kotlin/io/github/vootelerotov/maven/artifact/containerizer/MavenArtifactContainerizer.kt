@@ -14,10 +14,10 @@ class MavenArtifactContainerizer(repositoryConfig: RepositoryConfig) {
 
   companion object MavenArtifactTestcontainerizer {
 
-    fun fromArtifact(fullyQualifiedName: String): JavaContainerBuilder =
+    fun containerize(fullyQualifiedName: String): JavaContainerBuilder =
       MavenArtifactContainerizer(RepositoryConfig.DEFAULT).fromArtifact(fullyQualifiedName)
 
-    fun fromArtifact(repositoryConfig: RepositoryConfig, fullyQualifiedArtifactName: String): JavaContainerBuilder =
+    fun containerize(repositoryConfig: RepositoryConfig, fullyQualifiedArtifactName: String): JavaContainerBuilder =
       MavenArtifactContainerizer(repositoryConfig).fromArtifact(fullyQualifiedArtifactName)
 
   }
