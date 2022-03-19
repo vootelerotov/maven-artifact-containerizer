@@ -14,9 +14,11 @@ class MavenArtifactContainerizer(repositoryConfig: RepositoryConfig) {
 
   companion object MavenArtifactTestcontainerizer {
 
+    @JvmStatic
     fun containerize(fullyQualifiedName: String): JavaContainerBuilder =
       MavenArtifactContainerizer(RepositoryConfig.DEFAULT).fromArtifact(fullyQualifiedName)
 
+    @JvmStatic
     fun containerize(repositoryConfig: RepositoryConfig, fullyQualifiedArtifactName: String): JavaContainerBuilder =
       MavenArtifactContainerizer(repositoryConfig).fromArtifact(fullyQualifiedArtifactName)
 
