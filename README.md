@@ -3,10 +3,11 @@
 A library for wrapping an arbitrary Maven artifact into a simple Docker container, using [Testcontainers](https://www.testcontainers.org).
 
 ```java
-    GenericContainer<?> container = MavenArtifactContainerizer.containerize("io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT");
-      .withJavaVersion(V11)
-      .withArgs("Hello", "World")
-      .build()
+  GenericContainer<?> container =
+      MavenArtifactContainerizer.containerize("io.github.vootelerotov.test.projects:main-class-jar:1.0-SNAPSHOT")
+          .withJavaVersion(V11)
+          .withArgs("Hello", "World")
+          .build();
 ```
 
 ## License
