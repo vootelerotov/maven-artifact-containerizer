@@ -36,7 +36,7 @@ class MavenArtifactContainerizer(repositoryConfig: RepositoryConfig) {
 
     val transitiveDependencies = if (dependencyCoordinates.isEmpty()) arrayOf() else resolver
       .resolve(dependencyCoordinates)
-      .withoutTransitivity()
+      .withTransitivity()
       .asResolvedArtifact()
 
     val dependencyFiles = transitiveDependencies.map { it.asFile() }

@@ -91,6 +91,33 @@ internal class MavenArtifactContainerizerTest {
 
   @Nested
   @TestInstance(PER_CLASS)
+  inner class WithTransitiveDependencies {
+
+    @BeforeAll
+    fun publishJarWithDependenciesToMavenLocal() {
+      // io.github.vootelerotov.test.projects:transitive-dependency:1.0-SNAPSHOT
+      publishToTestMavenLocal(Path.of("test-projects", "transitive-dependency", "pom.xml").toFile())
+      // io.github.vootelerotov.test.projects:dependency:1.0-SNAPSHOT
+      publishToTestMavenLocal(Path.of("test-projects", "dependency", "pom.xml").toFile())
+      // io.github.vootelerotov.test.projects:jar-with-transitive-dependencies:1.0-SNAPSHOT
+      publishToTestMavenLocal(Path.of("test-projects", "jar-with-transitive-dependencies", "pom.xml").toFile())
+    }
+
+    @Test
+    fun withTransitiveDependency() {
+      val container = containerWithTestLocaLRepository(
+        "io.github.vootelerotov.test.projects:jar-with-transitive-dependencies:1.0-SNAPSHOT"
+      )
+        .withClassName("io.github.vootelerotov.jar.with.transtitive.dependencies.Main")
+        .build().withLogConsumer { println(it.utf8String) }
+
+      assertThatContainerStarts(container, ".*Started: nothing!.*")
+    }
+
+  }
+
+  @Nested
+  @TestInstance(PER_CLASS)
   inner class JavaVersionPrinter {
 
     @BeforeAll
